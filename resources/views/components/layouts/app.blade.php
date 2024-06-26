@@ -22,6 +22,11 @@
     <link href="{{ asset('vendor/remixicon/remixicon.css') }}" rel="stylesheet">
     <link href="{{ asset('vendor/simple-datatables/style.css') }}" rel="stylesheet">
 
+    <!-- SweetAlert2 -->
+    <script src="{{ asset('sweetalert2/sweetalert2.min.js') }}"></script>
+    <link rel="stylesheet" href="{{ asset('sweetalert2/sweetalert2.min.css') }}">
+
+
     <!-- Template Main CSS File -->
     <link href="{{ asset('css/style.css') }}" rel="stylesheet">
 
@@ -70,5 +75,27 @@
     <!-- Template Main JS File -->
     <script src="{{ asset('js/main.js') }}"></script>
 </body>
+
+<script>
+    document.addEventListener('livewire:init', () => {
+        Livewire.on('success-toast-message', (event) => {
+            const Toast = Swal.mixin({
+                toast: true,
+                position: "top-end",
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+                didOpen: (toast) => {
+                    toast.onmouseenter = Swal.stopTimer;
+                    toast.onmouseleave = Swal.resumeTimer;
+                }
+            });
+            Toast.fire({
+                icon: "success",
+                title: "Success!"
+            });
+        });
+    });
+</script>
 
 </html>

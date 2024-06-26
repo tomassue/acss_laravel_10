@@ -64,6 +64,22 @@
             border-color: rgb(31 41 55);
             padding: 20px 16px 20px 16px;
         }
+
+        /* Users Page */
+        .item-list-scroll {
+            height: 600px;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: #aab7cf transparent;
+            box-shadow: 0px 0px 20px rgba(1, 41, 112, 0.1);
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .disabled-link {
+            pointer-events: none;
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
     </style>
 
     <!-- ======= Header ======= -->
@@ -84,20 +100,20 @@
 
                     <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown">
                         <img src="{{ asset('img/profile-img.jpg') }}" alt="Profile" class="rounded-circle">
-                        <span class="d-none d-md-block dropdown-toggle ps-2 text-black">K. Anderson</span>
+                        <span class="d-none d-md-block dropdown-toggle ps-2 text-black">{{ Auth::user()->name }}</span>
                     </a><!-- End Profile Iamge Icon -->
 
                     <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile">
                         <li class="dropdown-header">
-                            <h6>Kevin Anderson</h6>
-                            <span>Web Designer</span>
+                            <h6>{{ Auth::user()->name }}</h6>
+                            <span>{{ Auth::user()->role }}</span>
                         </li>
                         <li>
                             <hr class="dropdown-divider">
                         </li>
 
                         <li>
-                            <a class="dropdown-item d-flex align-items-center" href="users-profile.html">
+                            <a class="dropdown-item d-flex align-items-center" href="{{ route('profile') }}">
                                 <i class="bi bi-person"></i>
                                 <span>My Profile</span>
                             </a>
@@ -173,7 +189,7 @@
             </li>
 
             <li class="nav-item">
-                <a class="nav-link collapsed" href="users-profile.html">
+                <a class="nav-link {{ request()->routeIs('users') ? 'collapsed' : '' }}" href="{{ route('users') }}">
                     <i class="ri-user-star-line"></i>
                     <span>Users</span>
                 </a>

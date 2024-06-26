@@ -3,7 +3,9 @@
 use App\Livewire\Course;
 use App\Livewire\Dashboard;
 use App\Livewire\Faculty;
+use App\Livewire\MyProfile;
 use App\Livewire\Rooms;
+use App\Livewire\Users;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
@@ -30,4 +32,6 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/rooms', Rooms::class)->name('rooms');
     Route::get('/faculty', Faculty::class)->name('faculty');
     Route::get('/courses', Course::class)->name('courses');
+    Route::get('/users', Users::class)->name('users');
+    Route::get('/profile', MyProfile::class)->name('profile');
 });
