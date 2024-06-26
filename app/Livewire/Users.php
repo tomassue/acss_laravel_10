@@ -64,7 +64,7 @@ class Users extends Component
         $query = User::query();
         $query->create($data);
         $this->reset();
-        $this->loadUsers();
+        // $this->loadUsers();
         $this->dispatch('success-toast-message');
     }
 
@@ -106,7 +106,7 @@ class Users extends Component
         $query = User::findOrFail($this->key);
         $query->update($data);
         $this->reset();
-        $this->loadUsers();
+        // $this->loadUsers();
         $this->dispatch('success-toast-message');
     }
 
@@ -119,7 +119,7 @@ class Users extends Component
 
         $key->update($data);
         $this->reset();
-        $this->loadUsers();
+        // $this->loadUsers();
         $this->dispatch('success-toast-message');
     }
 

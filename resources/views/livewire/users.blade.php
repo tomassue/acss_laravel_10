@@ -77,7 +77,7 @@
 
                         <div class="card" style="background-color: #1f2937; border-radius: 1rem;">
                             <div class="card-body">
-                                <h5 class="card-title" style="color: #ffffff">Faculty List</h5>
+                                <h5 class="card-title" style="color: #ffffff">User List</h5>
                                 <form class="row g-3" data-bitwarden-watching="1">
                                     <div class="col-12">
                                         <div class="flex items-center bg-white rounded p-2">

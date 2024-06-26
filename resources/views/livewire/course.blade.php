@@ -23,10 +23,6 @@
                                         <input type="email" class="form-control" id="inputNanme4">
                                     </div>
                                     <div class="col-6">
-                                        <label for="inputEmail4" class="form-label" style="color: #ffffff">Subject Code:</label>
-                                        <input type="email" class="form-control" id="inputEmail4">
-                                    </div>
-                                    <div class="col-6">
                                         <label for="inputNanme4" class="form-label" style="color: #ffffff">Semester:</label>
                                         <input type="email" class="form-control" id="inputNanme4">
                                     </div>
@@ -35,15 +31,7 @@
                                         <input type="text" class="form-control" id="inputNanme4">
                                     </div>
                                     <div class="col-12">
-                                        <label for="inputNanme4" class="form-label" style="color: #ffffff">Description:</label>
-                                        <input type="text" class="form-control" id="inputNanme4">
-                                    </div>
-                                    <div class="col-12">
-                                        <label for="inputNanme4" class="form-label" style="color: #ffffff">Status: *dropdown</label>
-                                        <input type="text" class="form-control" id="inputNanme4">
-                                    </div>
-                                    <div class="col-12">
-                                        <label for="inputNanme4" class="form-label" style="color: #ffffff">Days: *dropdown</label>
+                                        <label for="inputNanme4" class="form-label" style="color: #ffffff">Days: *multiple dropdown</label>
                                         <input type="text" class="form-control" id="inputNanme4">
                                     </div>
                                     <div class="col-12">
