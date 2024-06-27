@@ -8,7 +8,7 @@
 
                         <div class="card" style="background-color: #1f2937; border-radius: 1rem;">
                             <div class="card-body">
-                                <h5 class="card-title" style="color: #ffffff">Course Form</h5>
+                                <h5 class="card-title" style="color: #ffffff">{{ $editMode == false ? 'Add Course' : 'Edit Course' }} Form</h5>
                                 <form class="row g-3" data-bitwarden-watching="1" novalidate wire:submit="save">
                                     <div class="col-12">
                                         <label for="selectCourse" class="form-label" style="color: #ffffff">Course List:</label>
@@ -55,10 +55,18 @@
                                     </div>
                                     <div class="col-12">
                                         <label for="selectedDays" class="form-label" style="color: #ffffff">Days:</label>
-                                        <div id="days-select" wire:ignore></div>
-                                        <input type="hidden" wire:model="selectedDays" id="selectedDays">
+                                        <div wire:ignore>
+                                            <select class="form-select js-days-multiple" name="selectedDays[]" multiple="multiple" style="width: 100%;" size="7" wire:model="selectedDays">
+                                                <option value="Sunday">Sunday</option>
+                                                <option value="Monday">Monday</option>
+                                                <option value="Tuesday">Tuesday</option>
+                                                <option value="Wednesday">Wednesday</option>
+                                                <option value="Thursday">Thursday</option>
+                                                <option value="Friday">Friday</option>
+                                                <option value="Saturday">Saturday</option>
+                                            </select>
+                                        </div>
                                         @error('selectedDays') <span class="custom-invalid-feedback"> {{ $message }} </span> @enderror
-
                                     </div>
                                     <div class="col-12">
                                         <label for="inputStartTime" class="form-label" style="color: #ffffff">Time Start:</label>
@@ -76,13 +84,12 @@
                                         @error('block') <div class="invalid-feedback"> {{ $message }} </div> @enderror
                                     </div>
                                     <div class="text-start" style="margin-top: 8px; padding-top: 15px; padding-bottom: 20px;">
-                                        <button type="submit" class="btn btn-primary">Save</button>
+                                        <button type="submit" class="btn btn-primary">{{ $editMode == false ? 'Save' : 'Update' }}</button>
                                         <button type="button" class="btn btn-secondary" wire:click="clear">Cancel</button>
                                     </div>
                                 </form>
                             </div>
                         </div>
-
 
                     </div>
 
@@ -96,7 +103,7 @@
                                         <div class="flex items-center bg-white rounded p-2">
                                             <div class="input-group input-group-lg">
                                                 <span class="input-group-text" id="basic-addon1"><i class="ri-search-line"></i></span>
-                                                <input type="text" class="form-control" placeholder="Search" aria-label="Username" aria-describedby="basic-addon1">
+                                                <input type="text" class="form-control" placeholder="Search" aria-label="Username" aria-describedby="basic-addon1" wire:model.live="search">
                                             </div>
                                         </div>
                                     </div>
@@ -126,9 +133,9 @@
                                                             <div class="col-xxl-6">
                                                                 <a class="btn btn-secondary w-100" href="#" role="button" wire:click="edit({{ $item->id }})">Edit</a>
                                                             </div>
-                                                            <div class="col-xxl-6">
+                                                            <!-- <div class="col-xxl-6">
                                                                 <a class="btn btn-danger w-100 {{ $item->is_active == 0 ? 'disabled-link' : '' }}" href="#" role="button" wire:click="$dispatch('confirm-user-softDelete', { key: {{ $item->id }} })">Delete</a>
-                                                            </div>
+                                                            </div> -->
                                                         </div>
 
                                                     </div>
@@ -155,6 +162,17 @@
 
 @script
 <script>
+    // Initialize Select2 after Livewire component is rendered
+    // $(document).ready(function() {
+    //     $('.js-days-multiple').select2();
+
+    //     // Update Livewire component on change event
+    //     $('.js-days-multiple').on('change', function() {
+    //         var selectedValues = $(this).val(); // Get selected values
+    //         @this.set('selectedDays', selectedValues); // Update Livewire property
+    //     });
+    // });
+
     VirtualSelect.init({
         ele: '#room-select',
         search: true,
@@ -168,52 +186,16 @@
         @this.set('selectedRoom', data);
     })
 
-    VirtualSelect.init({
-        ele: '#days-select',
-        multiple: true,
-        search: false,
-        maxWidth: '100%',
-        options: [{
-                label: 'Sunday',
-                value: 'Sunday'
-            },
-            {
-                label: 'Monday',
-                value: 'Monday'
-            },
-            {
-                label: 'Tuesday',
-                value: 'Tuesday'
-            },
-            {
-                label: 'Wednesday',
-                value: 'Wednesday'
-            },
-            {
-                label: 'Thursday',
-                value: 'Thursday'
-            },
-            {
-                label: 'Friday',
-                value: 'Friday'
-            },
-            {
-                label: 'Saturday',
-                value: 'Saturday'
-            },
-        ]
-    })
-
-    let selectedDays = document.querySelector('#days-select');
-    selectedDays.addEventListener('change', () => {
-        let data = selectedDays.value;
-        @this.set('selectedDays', data);
+    // When edit mode, populate the data from db to virtual select through the event
+    $wire.on('set-selectedRoom-values', (room) => {
+        document.querySelector('#room-select').setValue(room);
+        // console.log('Room:', room);
     })
 
     // Reset selected options in Virtual Select
     $wire.on('reset-virtual-selects', () => {
         document.querySelector('#room-select').reset();
-        document.querySelector('#days-select').reset();
+        // document.querySelector('#days-select').reset();
     })
 </script>
 @endscript

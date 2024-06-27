@@ -10,8 +10,11 @@ use Livewire\Component;
 
 class Course extends Component
 {
-    public $type, $subject, $room_id, $day, $time_start, $time_end, $block, $year, $semester; // wire:model
+    public $id_course; // Used for updating. It holds the id of the course to be updated.
+    public $type, $subject, $room_id, $day = [], $time_start, $time_end, $block, $year, $semester; // wire:model
     public $selectedRoom, $selectedDays = [];
+    public $editMode = false; // used in forms to determine whether to save or update.
+    public $search;
 
     public function rules()
     {
@@ -86,7 +89,24 @@ class Course extends Component
         $this->dispatch('success-toast-message');
     }
 
+    public function edit(CourseModel $key)
+    {
+        $this->editMode = true;
 
+        $this->id_course = $key->id;
+
+        $this->type = $key->type;
+        $this->subject = $key->subject;
+        $this->year = $key->year;
+        $this->semester = $key->semester;
+        $this->selectedRoom = $key->room_id;
+        $this->dispatch('set-selectedRoom-values', $this->selectedRoom);
+        $this->selectedDays = $key->day; //! Not populating to Virtual Select
+
+        $this->time_start = $key->time_start;
+        $this->time_end = $key->time_end;
+        $this->block = $key->block;
+    }
 
     public function clear()
     {
@@ -130,6 +150,7 @@ class Course extends Component
     {
         $courses = CourseModel::join('rooms', 'rooms.id', '=', 'courses.room_id')
             ->select(
+                'courses.id AS id',
                 'courses.type',
                 'courses.subject',
                 'rooms.name as room_name',
@@ -140,6 +161,12 @@ class Course extends Component
                 'courses.year',
                 'courses.semester'
             )
+            ->where(function ($query) {
+                $query->where('courses.type', 'like', '%' . $this->search . '%')
+                    ->orWhere('courses.subject', 'like', '%' . $this->search . '%')
+                    ->orWhere('rooms.name', 'like', '%' . $this->search . '%')
+                    ->orWhere('courses.block', 'like', '%' . $this->search . '%');
+            })
             ->get();
 
         // Fetch all reference days

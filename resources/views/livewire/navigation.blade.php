@@ -95,9 +95,9 @@
     <header id="header" class="header fixed-top d-flex align-items-center border-bottom border-black border-4">
 
         <div class="d-flex align-items-center justify-content-between">
-            <a href="index.html" class="logo d-flex align-items-center">
-                <img src="assets/img/logo.png" alt="">
-                <span class="d-none d-lg-block">NiceAdmin</span>
+            <a href="{{ route('dashboard') }}" class="logo d-flex align-items-center">
+                <img src="{{ asset('img/logotrans.png') }}" alt="" style="max-height: 50px;">
+                <span class="d-none d-lg-block fs-6">Automated Class Scheduling System | XU Computer Studies</span>
             </a>
             <i class="bi bi-list toggle-sidebar-btn"></i>
         </div><!-- End Search Bar -->
@@ -170,13 +170,6 @@
             </li>
 
             <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('faculty') ? 'collapsed' : '' }}" href="{{ route('faculty') }}">
-                    <i class="ri-profile-line"></i>
-                    <span>Faculty</span>
-                </a>
-            </li>
-
-            <li class="nav-item">
                 <a class="nav-link {{ request()->routeIs('courses') ? 'collapsed' : '' }}" href="{{ route('courses') }}">
                     <i class="ri-file-copy-2-line"></i>
                     <span>Courses</span>
@@ -184,7 +177,7 @@
             </li>
 
             <li class="nav-item">
-                <a class="nav-link" href="#">
+                <a class="nav-link {{ request()->routeIs('faculty-schedules') }}" href="{{ route('faculty-schedules') }}">
                     <i class="ri-user-2-line"></i>
                     <span>Faculty Schedules</span>
                 </a>
