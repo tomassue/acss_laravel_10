@@ -38,7 +38,7 @@ class Course extends Component
 
     public function save()
     {
-        // $this->validate();
+        $this->validate();
 
         $data = [
             'type' => $this->type,
@@ -53,7 +53,7 @@ class Course extends Component
         ];
 
         // Check if the room is already occupied during the specified time and days
-        $occupied_courses = CourseModel::where('room_id', $this->selectedRoom)
+        $occupied_rooms = CourseModel::where('room_id', $this->selectedRoom)
             ->where(function ($query) {
                 // Check if any day matches with selected days
                 foreach ($this->selectedDays as $day) {
@@ -72,18 +72,21 @@ class Course extends Component
             })
             ->exists();
 
-        if ($occupied_courses) {
-            $this->addError('selectedDays', 'The selected room is already occupied during the specified day(s) and time.');
-            $this->addError('time_start', 'The selected room is already occupied during the specified day(s) and time.');
-            $this->addError('time_end', 'The selected room is already occupied during the specified day(s) and time.');
+        if ($occupied_rooms) {
+            $this->addError('selectedDays', 'The selected room is already occupied during the specified day(s).');
+            $this->addError('time_start', 'The selected room is already occupied during the specified and time.');
+            $this->addError('time_end', 'The selected room is already occupied during the specified and time.');
             return;
         }
 
-        // $query = CourseModel::query();
-        // $query->create($data);
+        $query = CourseModel::query();
+        $query->create($data);
         $this->clear();
+        $this->dispatch('reset-virtual-selects'); // Emit event to reset Virtual Select dropdowns
         $this->dispatch('success-toast-message');
     }
+
+
 
     public function clear()
     {

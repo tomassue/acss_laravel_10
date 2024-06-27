@@ -209,5 +209,11 @@
         let data = selectedDays.value;
         @this.set('selectedDays', data);
     })
+
+    // Reset selected options in Virtual Select
+    $wire.on('reset-virtual-selects', () => {
+        document.querySelector('#room-select').reset();
+        document.querySelector('#days-select').reset();
+    })
 </script>
 @endscript
