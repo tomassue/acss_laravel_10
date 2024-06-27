@@ -29,13 +29,22 @@ class Rooms extends Component
     public function save()
     {
         $this->validate();
+
         $data = [
             'name' => $this->name
         ];
-        $query = RoomsModel::query();
-        $query->create($data);
-        $this->clear();
-        $this->dispatch('success-toast-message');
+
+        // Check if room's name already exist
+        $check_room = RoomsModel::where('name', $this->name)->count();
+        if ($check_room >= 1) {
+            $this->dispatch('duplicate-room-name-error');
+            $this->clear();
+        } else {
+            $query = RoomsModel::query();
+            $query->create($data);
+            $this->clear();
+            $this->dispatch('success-toast-message');
+        }
     }
 
     public function edit(RoomsModel $key)

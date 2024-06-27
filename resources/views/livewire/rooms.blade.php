@@ -5,7 +5,7 @@
             <div class="row">
                 <div class="col-lg-4">
 
-                    <div class="card" style="background-color: #1f2937; border-radius: 1rem;" wire:loading.class="opacity-50" wire:target="save, edit, clear">
+                    <div class="card" style="background-color: #1f2937; border-radius: 1rem;" wire:loading.class="opacity-50" wire:target="save, edit, update, clear">
                         <div class="card-body">
                             <h5 class="card-title" style="color: #ffffff">Room Form</h5>
                             <form class="row g-3" data-bitwarden-watching="1" wire:submit="{{ $editMode == false ? 'save' : 'update' }}" novalidate>

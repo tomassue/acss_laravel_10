@@ -80,6 +80,15 @@
             opacity: 0.6;
             cursor: not-allowed;
         }
+
+        /* End Users Page */
+
+        .custom-invalid-feedback {
+            width: 100%;
+            margin-top: .25rem;
+            font-size: .875em;
+            color: var(--bs-form-invalid-color);
+        }
     </style>
 
     <!-- ======= Header ======= -->

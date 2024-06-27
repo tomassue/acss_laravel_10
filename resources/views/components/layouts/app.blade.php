@@ -26,6 +26,9 @@
     <script src="{{ asset('sweetalert2/sweetalert2.min.js') }}"></script>
     <link rel="stylesheet" href="{{ asset('sweetalert2/sweetalert2.min.css') }}">
 
+    <!-- Virtual Select -->
+    <link rel="stylesheet" href="{{ asset('virtual-select/virtual-select.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('virtual-select/tooltip.min.css') }}">
 
     <!-- Template Main CSS File -->
     <link href="{{ asset('css/style.css') }}" rel="stylesheet">
@@ -72,6 +75,10 @@
     <script src="{{ asset('vendor/tinymce/tinymce.min.js') }}"></script>
     <script src="{{ asset('vendor/php-email-form/validate.js') }}"></script>
 
+    <!-- Virtual Select -->
+    <script src="{{ asset('virtual-select/virtual-select.min.js') }}"></script>
+    <script src="{{ asset('virtual-select/tooltip.min.js') }}"></script>
+
     <!-- Template Main JS File -->
     <script src="{{ asset('js/main.js') }}"></script>
 </body>
@@ -93,6 +100,14 @@
             Toast.fire({
                 icon: "success",
                 title: "Success!"
+            });
+        });
+
+        Livewire.on('duplicate-room-name-error', (event) => {
+            Swal.fire({
+                icon: "error",
+                title: "Oops...",
+                text: "Room already exist!"
             });
         });
     });

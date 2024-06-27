@@ -3,13 +3,14 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 
 class CourseModel extends Model
 {
     use HasFactory;
 
-    protected $table = 'course';
+    protected $table = 'courses';
 
     protected $fillable = [
         'type',
@@ -22,4 +23,13 @@ class CourseModel extends Model
         'year',
         'semester'
     ];
+
+    // Automatically save the 'day' in json_encode and decodes it when retrieved.
+    protected function day(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => json_decode($value, true),
+            set: fn ($value) => json_encode($value),
+        );
+    }
 }
