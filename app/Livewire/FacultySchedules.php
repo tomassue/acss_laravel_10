@@ -6,6 +6,7 @@ use App\Models\AppointmentsModel;
 use App\Models\CourseModel;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use Livewire\Attributes\On;
 use Livewire\Component;
 
 class FacultySchedules extends Component
@@ -32,32 +33,63 @@ class FacultySchedules extends Component
 
         $query = AppointmentsModel::query();
         $query->create($data);
-        $this->clear();
+        $this->reset('selectedInstructor', 'selectedCourse');
         $this->dispatch('hide-appointFacultyModal');
         $this->dispatch('reset-virtual-selects'); // Emit event to reset Virtual Select dropdowns
+        // $this->dispatch('success-toast-message');
+        $this->redirect('faculty-schedules');
+        //! The course dropdown won't update. Find a way where it doesn't have to redirect to be updated. Or else, make it a session instead.
+    }
+
+    #[On('archive-appointment')]
+    public function archiveAppointment(AppointmentsModel $appointments_id)
+    {
+        $data = [
+            'status' => '0'
+        ];
+
+        $appointments_id->update($data);
         $this->dispatch('success-toast-message');
-        // $this->redirect('faculty-schedules');
-        //! The course dropdown won't update. Find a way where it doesn't have to redirect to be updated.
+    }
+
+    #[On('archive-all-appointments')]
+    public function archiveAllAppointments()
+    {
+        if ($this->instructor) {
+            $data = [
+                'status' => '0'
+            ];
+
+            $query = AppointmentsModel::query();
+            $query->where('user_id', $this->instructor);
+            $query->update($data);
+        }
     }
 
     public function clear()
     {
-        $this->reset('selectedInstructor', 'selectedCourse');
+        $this->reset();
         $this->resetValidation();
         $this->dispatch('reset-virtual-selects'); // Emit event to reset Virtual Select dropdowns
     }
 
-    public function loadAppointments() // Edit Schedule card
+    public function loadAppointments() // Edit Schedule card and Time Blocks card
     {
-        $appointments = AppointmentsModel::join('courses', 'courses.id', '=', 'course_id')
+        $appointments = AppointmentsModel::join('courses', 'courses.id', '=', 'appointments.course_id')
             ->join('rooms', 'rooms.id', '=', 'courses.room_id')
+            ->join('users', 'users.id', '=', 'appointments.user_id')
             ->select(
+                'appointments.id AS appointments_id',
                 'courses.id AS course_id',
                 'courses.subject AS course_subject',
                 'rooms.name AS room_name',
+                'courses.day AS courses_day',
                 DB::raw("CONCAT(DATE_FORMAT(courses.time_start, '%h:%i%p'), ' - ', DATE_FORMAT(courses.time_end, '%h:%i%p')) AS time_block"),
+                DB::raw("SUBSTRING_INDEX(SUBSTRING_INDEX(users.name, ' ', 2), ' ', -1) AS users_last_name")
             )
             ->where('appointments.user_id', $this->instructor)
+            ->where('status', '1')
+            ->orderBy('courses.time_end', 'ASC')
             ->get();
 
         return $appointments;
@@ -81,7 +113,8 @@ class FacultySchedules extends Component
             ->whereNotExists(function ($query) {
                 $query->select(DB::raw(1))
                     ->from('appointments')
-                    ->whereRaw('courses.id = appointments.course_id');
+                    ->whereRaw('courses.id = appointments.course_id')
+                    ->whereRaw('appointments.status = 1');
             })
             ->get()
             ->map(function ($item) {

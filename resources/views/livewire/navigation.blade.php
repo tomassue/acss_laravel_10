@@ -177,7 +177,7 @@
             </li>
 
             <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('faculty-schedules') }}" href="{{ route('faculty-schedules') }}">
+                <a class="nav-link {{ request()->routeIs('faculty-schedules') ? 'collapsed' : '' }}" href="{{ route('faculty-schedules') }}">
                     <i class="ri-user-2-line"></i>
                     <span>Faculty Schedules</span>
                 </a>

@@ -56,8 +56,8 @@
                                     <div class="col-12">
                                         <label for="selectedDays" class="form-label" style="color: #ffffff">Days:</label>
                                         <div wire:ignore>
-                                            <select class="form-select js-days-multiple" name="selectedDays[]" multiple="multiple" style="width: 100%;" size="7" wire:model="selectedDays">
-                                                <option value="Sunday">Sunday</option>
+                                            <select class="form-select js-days-multiple" name="selectedDays[]" multiple="multiple" style="width: 100%;" size="6" wire:model="selectedDays">
+                                                <!-- <option value="Sunday">Sunday</option> -->
                                                 <option value="Monday">Monday</option>
                                                 <option value="Tuesday">Tuesday</option>
                                                 <option value="Wednesday">Wednesday</option>
