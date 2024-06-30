@@ -22,6 +22,14 @@ class FacultySchedules extends Component
         ];
     }
 
+    public function updated($property)
+    {
+        if ($property == 'selectedInstructor') {
+            $refreshed_courses = $this->loadCourses();
+            $this->dispatch('refresh-course-select', $refreshed_courses);
+        }
+    }
+
     public function save()
     {
         $this->validate();
@@ -36,9 +44,8 @@ class FacultySchedules extends Component
         $this->reset('selectedInstructor', 'selectedCourse');
         $this->dispatch('hide-appointFacultyModal');
         $this->dispatch('reset-virtual-selects'); // Emit event to reset Virtual Select dropdowns
-        // $this->dispatch('success-toast-message');
-        $this->redirect('faculty-schedules');
-        //! The course dropdown won't update. Find a way where it doesn't have to redirect to be updated. Or else, make it a session instead.
+        $this->dispatch('success-toast-message');
+        // $this->redirect('faculty-schedules');
     }
 
     #[On('archive-appointment')]
@@ -63,6 +70,7 @@ class FacultySchedules extends Component
             $query = AppointmentsModel::query();
             $query->where('user_id', $this->instructor);
             $query->update($data);
+            $this->dispatch('success-toast-message');
         }
     }
 
@@ -113,7 +121,10 @@ class FacultySchedules extends Component
             ->whereNotExists(function ($query) {
                 $query->select(DB::raw(1))
                     ->from('appointments')
+                    ->join('users', 'users.id', '=', 'appointments.user_id')
+                    ->whereColumn('courses.id', 'appointments.course_id') // Ensure the courses are related
                     ->whereRaw('courses.id = appointments.course_id')
+                    ->where('users.role', 'Instructor')
                     ->whereRaw('appointments.status = 1');
             })
             ->get()
@@ -157,6 +168,7 @@ class FacultySchedules extends Component
                 'id AS select_instructor_id',
                 'name AS select_instructor_name',
             )
+            ->where('is_active', '1')
             ->get()
             ->map(function ($item) {
                 return [

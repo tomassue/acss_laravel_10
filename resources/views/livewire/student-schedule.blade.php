@@ -1,14 +1,15 @@
 <main id="main" class="main">
 
     <div class="pagetitle">
-        <h1>Faculty Schedules</h1>
+        <h1>Student Schedule</h1>
     </div><!-- End Page Title -->
 
     <section class="section">
         <div class="row">
+
             <div class="col-lg-12 py-3">
                 <div class="d-grid gap-2 col-2 ms-auto">
-                    <button type="button" class="btn btn-primary" wire:click="$dispatch('show-appointFacultyModal')">New</button>
+                    <button type="button" class="btn btn-primary" wire:click="$dispatch('show-setScheduleStudentModal')">New</button>
                 </div>
             </div>
 
@@ -16,10 +17,10 @@
 
                 <div class="d-grid gap-2 col-lg-6 mx-auto">
                     <div class="mb-3">
-                        <select class="form-select form-select-lg" aria-label="Default select example" wire:model.live="instructor">
+                        <select class="form-select form-select-lg" aria-label="Default select example" wire:model.live="student">
                             <option value="" selected>Select...</option>
-                            @foreach ($instructors as $item)
-                            <option value="{{ $item->instructor_id }}">{{ $item->instructor_name }}</option>
+                            @foreach ($students as $item)
+                            <option value="{{ $item->student_id }}">{{ $item->student_name }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -35,9 +36,9 @@
                             <div class="col-md-6">
                                 <h5 class="card-title">Edit Schedules</h5>
                             </div>
-                            @if ($instructor)
+                            @if ($student)
                             <div class="col-md-6 d-flex justify-content-end align-items-center">
-                                <a href="#" role="button" class="btn btn-danger" wire:click="$dispatch('confirm-archive-all-appointments')" wire:loading.remove>Archive All</a>
+                                <a href="#" role="button" class="btn btn-danger" wire:click="$dispatch('confirm-archive-all-subjects')" wire:loading.remove>Archive All</a>
                             </div>
                             @endif
                         </div>
@@ -53,13 +54,13 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @forelse($appointments as $item)
+                                    @forelse($schedules as $item)
                                     <tr wire:key="{{ $item->appointments_id }}">
                                         <th scope="row">{{ $item->course_subject }}</th>
                                         <td>{{ $item->room_name }}</td>
                                         <td>{{ $item->time_block }}</td>
                                         <td>
-                                            <a class="btn btn-danger" href="#" role="button" wire:click="$dispatch('confirm-archive-appointment', { appointments_id: {{ $item->appointments_id }} })"><i class="bi bi-archive"></i></a>
+                                            <a class="btn btn-danger" href="#" role="button" wire:click="$dispatch('confirm-archive-subject', { appointments_id: {{ $item->appointments_id }} })"><i class="bi bi-archive"></i></a>
                                         </td>
                                     </tr>
                                     @empty
@@ -92,17 +93,22 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @forelse ($appointments as $item)
+                                    @forelse ($schedules as $item)
                                     @php
                                     $days = json_decode($item->courses_day);
                                     @endphp
-                                    <tr>
+                                    <tr wire:key="{{ $item->appointments_id }}">
+                                        @php
+                                        $ins = App\Models\AppointmentsModel::where('course_id', $item->course_id)->where('status', '1')->pluck('user_id');
+                                        $ins2 = App\Models\User::select(DB::raw("SUBSTRING_INDEX(SUBSTRING_INDEX(users.name, ' ', 2), ' ', -1) AS ins_last_name"))
+                                        ->whereIn('id', $ins)->where('role', 'Instructor')->first();
+                                        @endphp
                                         <th scope="row">{{ $item->time_block }}</th>
                                         <td>
                                             @if(in_array('Monday', $days) || in_array('Thursday', $days))
                                             {!!
                                             $item->course_subject . '<br>' .
-                                            $item->users_last_name . '<br>' .
+                                            $ins2->ins_last_name . '<br>' .
                                             $item->room_name
                                             !!}
                                             @endif
@@ -111,7 +117,7 @@
                                             @if(in_array('Tuesday', $days) || in_array('Friday', $days))
                                             {!!
                                             $item->course_subject . '<br>' .
-                                            $item->users_last_name . '<br>' .
+                                            $ins2->ins_last_name . '<br>' .
                                             $item->room_name
                                             !!}
                                             @endif
@@ -120,7 +126,7 @@
                                             @if(in_array('Wednesday', $days))
                                             {!!
                                             $item->course_subject . '<br>' .
-                                            $item->users_last_name . '<br>' .
+                                            $ins2->ins_last_name . '<br>' .
                                             $item->room_name
                                             !!}
                                             @endif
@@ -140,38 +146,72 @@
             </div>
         </div>
     </section>
-
-    @include('livewire.modals.faculty-schedules-modal')
-
+    @include('livewire.modals.student-schedules-modal')
 </main><!-- End #main -->
 
 @script
 <script>
-    $wire.on('show-appointFacultyModal', () => {
-        $('#appointFacultyModal').modal('show');
+    $wire.on('show-setScheduleStudentModal', () => {
+        $('#setScheduleStudentModal').modal('show');
     });
 
-    $wire.on('hide-appointFacultyModal', () => {
-        $('#appointFacultyModal').modal('hide');
+    $wire.on('hide-setScheduleStudentModal', () => {
+        $('#setScheduleStudentModal').modal('hide');
     });
 
-    $wire.on('confirm-archive-all-appointments', () => {
-        Swal.fire({
-            title: "Are you sure you want to archive all appointment?",
-            text: "You won't be able to revert this!",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, archive it!"
-        }).then((result) => {
-            if (result.isConfirmed) {
-                $wire.dispatch('archive-all-appointments');
-            }
+    VirtualSelect.init({
+        ele: '#student-select',
+        maxWidth: '100%',
+        search: true,
+        options: @json($select_students)
+    });
+
+    let selectedStudent = document.querySelector('#student-select');
+    selectedStudent.addEventListener('change', () => {
+        let data = selectedStudent.value;
+        @this.set('selectedStudent', data);
+    });
+
+    VirtualSelect.init({
+        ele: '#subject-select',
+        maxWidth: '100%',
+        search: true,
+        optionHeight: '110px',
+        popupDropboxBreakpoint: '3000px',
+        options: @json($subjects),
+        hasOptionDescription: true
+    });
+
+    $wire.on('refresh-subject-select', (key) => {
+        document.querySelector('#subject-select').destroy();
+        let refreshed_courses = key[0]; // This will unpack the inner array which causes error in populating the data to virtual select
+
+        // Initialize Virtual Select
+        VirtualSelect.init({
+            ele: '#subject-select',
+            maxWidth: '100%',
+            search: true,
+            optionHeight: '110px',
+            popupDropboxBreakpoint: '3000px',
+            options: refreshed_courses,
+            hasOptionDescription: true
         });
+        // console.log(refreshed_courses);
     });
 
-    $wire.on('confirm-archive-appointment', (appointments_id) => {
+    let selectedSubject = document.querySelector('#subject-select');
+    selectedSubject.addEventListener('change', () => {
+        let data = selectedSubject.value;
+        @this.set('selectedSubject', data);
+    });
+
+    // Reset selected options in Virtual Select
+    $wire.on('reset-virtual-selects', () => {
+        document.querySelector('#student-select').reset();
+        document.querySelector('#subject-select').reset();
+    })
+
+    $wire.on('confirm-archive-subject', (appointments_id) => {
         Swal.fire({
             title: "Are you sure you want to archive this specific appointment?",
             text: "You won't be able to revert this!",
@@ -189,56 +229,20 @@
         });
     });
 
-    VirtualSelect.init({
-        ele: '#instructor-select',
-        maxWidth: '100%',
-        search: true,
-        options: @json($select_instructors)
-    });
-
-    let selectedInstructor = document.querySelector('#instructor-select');
-    selectedInstructor.addEventListener('change', () => {
-        let data = selectedInstructor.value;
-        @this.set('selectedInstructor', data);
-    });
-
-    VirtualSelect.init({
-        ele: '#course-select',
-        maxWidth: '100%',
-        search: true,
-        optionHeight: '110px',
-        popupDropboxBreakpoint: '3000px',
-        options: @json($courses),
-        hasOptionDescription: true
-    });
-
-    let selectedCourse = document.querySelector('#course-select');
-    selectedCourse.addEventListener('change', () => {
-        let data = selectedCourse.value;
-        @this.set('selectedCourse', data);
-    });
-
-    $wire.on('refresh-course-select', (key) => {
-        document.querySelector('#course-select').destroy();
-        let refreshed_courses = key[0]; // This will unpack the inner array which causes error in populating the data to virtual select
-
-        VirtualSelect.init({
-            ele: '#course-select',
-            maxWidth: '100%',
-            search: true,
-            optionHeight: '110px',
-            popupDropboxBreakpoint: '3000px',
-            options: refreshed_courses,
-            hasOptionDescription: true
+    $wire.on('confirm-archive-all-subjects', () => {
+        Swal.fire({
+            title: "Are you sure you want to archive all subjects?",
+            text: "You won't be able to revert this!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, archive it!"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $wire.dispatch('archive-all-appointments');
+            }
         });
-
-        console.log(refreshed_courses);
-    });
-
-    // Reset selected options in Virtual Select
-    $wire.on('reset-virtual-selects', () => {
-        document.querySelector('#instructor-select').reset();
-        document.querySelector('#course-select').reset();
-    });
+    })
 </script>
 @endscript

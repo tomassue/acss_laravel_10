@@ -120,6 +120,7 @@ class Course extends Component
             'id',
             'name'
         )
+            ->where('is_active', '1')
             ->get()
             ->map(function ($item) {
                 return [

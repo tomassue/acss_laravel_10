@@ -89,6 +89,11 @@
             font-size: .875em;
             color: var(--bs-form-invalid-color);
         }
+
+        /* Dashboard */
+        .list-group {
+            font-size: smaller;
+        }
     </style>
 
     <!-- ======= Header ======= -->
@@ -162,6 +167,7 @@
                 </a>
             </li><!-- End Dashboard Nav -->
 
+            @if(Auth::user()->role == 'Super Admin')
             <li class="nav-item">
                 <a class="nav-link {{ request()->routeIs('rooms') ? 'collapsed' : '' }}" href="{{ route('rooms') }}">
                     <i class="ri-home-8-line"></i>
@@ -184,7 +190,7 @@
             </li>
 
             <li class="nav-item">
-                <a class="nav-link" href="#">
+                <a class="nav-link {{ request()->routeIs('student-schedules') ? 'collapsed' : '' }}" href="{{ route('student-schedules') }}">
                     <i class="ri-user-line"></i>
                     <span>Student Schedules</span>
                 </a>
@@ -195,7 +201,8 @@
                     <i class="ri-user-star-line"></i>
                     <span>Users</span>
                 </a>
-            </li><!-- End Profile Page Nav -->
+            </li>
+            @endif<!-- End Profile Page Nav -->
 
         </ul>
 

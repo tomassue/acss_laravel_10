@@ -14,6 +14,17 @@
                                     <input type="text" class="form-control @error('name') is-invalid @enderror" id="inputRoom" wire:model="name">
                                     @error('name') <div class="invalid-feedback"> {{ $message }} </div> @enderror
                                 </div>
+                                @if ($editMode)
+                                <div class="col-12">
+                                    <label for="inputRoom" class="form-label" style="color: #ffffff">Status</label>
+                                    <select class="form-select" aria-label="Default select example" wire:model="is_active">
+                                        <option selected>Select...</option>
+                                        <option value="1">Active</option>
+                                        <option value="0">Inactive</option>
+                                    </select>
+                                    @error('is_active') <div class="invalid-feedback"> {{ $message }} </div> @enderror
+                                </div>
+                                @endif
                                 <div class="text-start" style="margin-top: 8px; padding-top: 15px; padding-bottom: 20px;">
                                     <button type="submit" class="btn btn-primary">{{ $editMode == false ? 'Save' : 'Update' }}</button>
                                     <button type="button" class="btn btn-secondary" wire:click="clear">Cancel</button>
@@ -45,6 +56,7 @@
                                             <div class="row g-2" wire:key="{{ $item->id }}">
                                                 <div class="col-8 text-start">
                                                     <div class="p-1">Room: {{ $item->name }}</div>
+                                                    <div class="p-1">Status: <span class="badge {{ $item->is_active == 0 ? 'bg-secondary' : 'bg-success' }}">{{ $item->is_active == 0 ? 'Inactive' : 'Active' }}</span></div>
                                                 </div>
                                                 <div class="col-4">
                                                     <div class="row p-3 g-2">

@@ -7,7 +7,7 @@ use Livewire\Component;
 
 class Rooms extends Component
 {
-    public $name; # wire:model
+    public $name, $is_active; # wire:model
     public $search;
     public $editMode = false;
     public $key; // ID that holds the room's ID.
@@ -52,13 +52,15 @@ class Rooms extends Component
         $this->editMode = true;
         $this->key = $key->id;
         $this->name = $key->name;
+        $this->is_active = $key->is_active;
     }
 
     public function update()
     {
         $this->validate();
         $data = [
-            'name' => $this->name
+            'name' => $this->name,
+            'is_active' => $this->is_active
         ];
         $query = RoomsModel::query();
         $query->findOrFail($this->key);
@@ -71,7 +73,8 @@ class Rooms extends Component
     {
         $query = RoomsModel::select(
             'id',
-            'name'
+            'name',
+            'is_active'
         )
             ->where('name', 'like', '%' . $this->search . '%')
             ->get();

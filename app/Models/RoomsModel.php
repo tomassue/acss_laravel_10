@@ -12,6 +12,7 @@ class RoomsModel extends Model
     protected $table = 'rooms';
 
     protected $fillable = [
-        'name'
+        'name',
+        'is_active'
     ];
 }
