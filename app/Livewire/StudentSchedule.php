@@ -134,6 +134,51 @@ class StudentSchedule extends Component
 
     public function loadCourses()
     {
+        // $courses = CourseModel::join('rooms', 'rooms.id', '=', 'courses.room_id')
+        //     ->select(
+        //         'courses.id AS course_id',
+        //         'courses.subject',
+        //         'courses.room_id',
+        //         'courses.day',
+        //         DB::raw("CONCAT(DATE_FORMAT(courses.time_start, '%h:%i%p'), ' - ', DATE_FORMAT(courses.time_end, '%h:%i%p')) AS time_block"),
+        //         'courses.block',
+        //         'courses.year',
+        //         'courses.semester',
+        //         'rooms.name AS room_name'
+        //     )
+        //     ->whereNotExists(function ($query) {
+        //         $query->select(DB::raw(1))
+        //             ->from('appointments')
+        //             ->join('users', 'users.id', '=', 'appointments.user_id')
+        //             ->whereColumn('courses.id', 'appointments.course_id') // Ensure the courses are related
+        //             ->where('appointments.user_id', $this->selectedStudent) // Filter by selected student
+        //             // ->where('courses.id', 'appointments.course_id')
+        //             ->where('appointments.status', 1);
+        //     })
+        //     ->get()
+        //     ->map(function ($item) {
+        //         // Determine the suffix for the year
+        //         $year = $item->year;
+        //         $yearSuffix = ($year == 1) ? 'st year' : (($year == 2) ? 'nd year' : 'rd year');
+
+        //         // Example of using decoded array
+        //         $daysString = implode(', ', $item->day); // Convert array to comma-separated string
+
+        //         // Build the description string with conditional suffix
+        //         $description = 'Room: ' . $item->room_name . ' | ' .
+        //             'Block: ' . $item->block . ' <br> ' .
+        //             'Time: ' . $item->time_block . '<br>' .
+        //             'Days: ' . $daysString . '<br>' .
+        //             'Year: ' . $year . $yearSuffix . '<br>' .
+        //             'Semester: ' . $item->semester . ' semester';
+
+        //         return [
+        //             'label' => $item->subject,
+        //             'value' => $item->course_id,
+        //             'description' => $description,
+        //         ];
+        //     });
+
         $courses = CourseModel::join('rooms', 'rooms.id', '=', 'courses.room_id')
             ->select(
                 'courses.id AS course_id',
@@ -146,20 +191,32 @@ class StudentSchedule extends Component
                 'courses.semester',
                 'rooms.name AS room_name'
             )
-            ->whereNotExists(function ($query) {
+            ->whereExists(function ($query) {
                 $query->select(DB::raw(1))
                     ->from('appointments')
                     ->join('users', 'users.id', '=', 'appointments.user_id')
-                    ->whereColumn('courses.id', 'appointments.course_id') // Ensure the courses are related
-                    ->where('appointments.user_id', $this->selectedStudent) // Filter by selected student
-                    // ->where('courses.id', 'appointments.course_id')
+                    ->whereColumn('appointments.course_id', 'courses.id')
+                    ->where('users.role', 'Instructor')
+                    ->where('appointments.status', 1);
+            })
+            ->whereNotExists(function ($query) {
+                $query->select(DB::raw(1))
+                    ->from('appointments')
+                    ->whereColumn('appointments.course_id', 'courses.id')
+                    ->where('appointments.user_id', $this->selectedStudent)
                     ->where('appointments.status', 1);
             })
             ->get()
             ->map(function ($item) {
                 // Determine the suffix for the year
                 $year = $item->year;
-                $yearSuffix = ($year == 1) ? 'st year' : (($year == 2) ? 'nd year' : 'rd year');
+                $yearSuffix = match ($year) {
+                    1 => 'st year',
+                    2 => 'nd year',
+                    3 => 'rd year',
+                    4 => 'th year',
+                    default => ''
+                };
 
                 // Example of using decoded array
                 $daysString = implode(', ', $item->day); // Convert array to comma-separated string
@@ -169,7 +226,7 @@ class StudentSchedule extends Component
                     'Block: ' . $item->block . ' <br> ' .
                     'Time: ' . $item->time_block . '<br>' .
                     'Days: ' . $daysString . '<br>' .
-                    'Year: ' . $year . $yearSuffix . '<br>' .
+                    'Year: ' . $year . ' ' . $yearSuffix . '<br>' .
                     'Semester: ' . $item->semester . ' semester';
 
                 return [
