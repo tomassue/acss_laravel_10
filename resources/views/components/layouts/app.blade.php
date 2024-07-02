@@ -118,6 +118,22 @@
                 text: "Room already exist!"
             });
         });
+
+        Livewire.on('alert-overlapping-schedule', (event) => {
+            Swal.fire({
+                icon: "error",
+                title: "Oops...",
+                text: "The selected course overlaps with an existing active appointment."
+            });
+        });
+
+        Livewire.on('alert-something-went-wrong', (event) => {
+            Swal.fire({
+                icon: "error",
+                title: "Oops...",
+                text: "Something went wrong!"
+            });
+        });
     });
 </script>
 

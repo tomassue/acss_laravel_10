@@ -11,7 +11,7 @@ use Livewire\Component;
 class Course extends Component
 {
     public $id_course; // Used for updating. It holds the id of the course to be updated.
-    public $type, $subject, $room_id, $day = [], $time_start, $time_end, $block, $year, $semester; // wire:model
+    public $type, $subject, $room_id, $day = [], $time_start, $time_end, $block, $year, $semester, $is_active; // wire:model
     public $selectedRoom, $selectedDays = [];
     public $editMode = false; // used in forms to determine whether to save or update.
     public $search;
@@ -106,7 +106,89 @@ class Course extends Component
         $this->time_start = $key->time_start;
         $this->time_end = $key->time_end;
         $this->block = $key->block;
+        $this->is_active = $key->is_active;
     }
+
+    public function update()
+    {
+        $rules = [
+            'type' => 'required',
+            'subject' => 'required',
+            'selectedRoom' => 'required',
+            'selectedDays' => 'required',
+            'time_start' => 'required',
+            'time_end' => 'required',
+            'block' => 'required',
+            'year' => 'required',
+            'semester' => 'required',
+            'is_active' => 'required'
+        ];
+
+        $this->validate($rules);
+
+        $data = [
+            'type' => $this->type,
+            'subject' => $this->subject,
+            'room_id' => $this->selectedRoom,
+            'day' => $this->selectedDays,
+            'time_start' => $this->time_start,
+            'time_end' => $this->time_end,
+            'block' => $this->block,
+            'year' => $this->year,
+            'semester' => $this->semester,
+            'is_active' => $this->is_active
+        ];
+
+        // Assuming you have the course ID stored in $this->course_id
+        $course = CourseModel::find($this->id_course);
+
+        // if (!$course) {
+        //     $this->addError('course_id', 'The specified course does not exist.');
+        //     return;
+        // }
+
+        // Check if any relevant fields have changed
+        $roomChanged = $course->room_id !== $this->selectedRoom;
+        $timeStartChanged = $course->time_start !== $this->time_start;
+        $timeEndChanged = $course->time_end !== $this->time_end;
+        $daysChanged = $course->day !== $this->selectedDays;
+
+        if ($roomChanged || $timeStartChanged || $timeEndChanged || $daysChanged) {
+            // Check if the room is already occupied during the specified time and days
+            $occupied_rooms = CourseModel::where('room_id', $this->selectedRoom)
+                ->where(function ($query) {
+                    // Check if any day matches with selected days
+                    foreach ($this->selectedDays as $day) {
+                        $query->orWhereJsonContains('day', $day);
+                    }
+                })
+                ->where(function ($query) {
+                    $query->where(function ($query) {
+                        $query->whereBetween('time_start', [$this->time_start, $this->time_end])
+                            ->orWhereBetween('time_end', [$this->time_start, $this->time_end]);
+                    })
+                        ->orWhere(function ($query) {
+                            $query->where('time_start', '<=', $this->time_start)
+                                ->where('time_end', '>=', $this->time_end);
+                        });
+                })
+                ->exists();
+
+            if ($occupied_rooms) {
+                $this->addError('selectedDays', 'The selected room is already occupied during the specified day(s).');
+                $this->addError('time_start', 'The selected room is already occupied during the specified time.');
+                $this->addError('time_end', 'The selected room is already occupied during the specified time.');
+                return;
+            }
+        }
+
+        // Perform the update
+        $course->update($data);
+        $this->clear();
+        $this->dispatch('reset-virtual-selects'); // Emit event to reset Virtual Select dropdowns
+        $this->dispatch('success-toast-message');
+    }
+
 
     public function clear()
     {
@@ -160,7 +242,8 @@ class Course extends Component
                 DB::raw("DATE_FORMAT(courses.time_end, '%h:%i%p') AS time_end"),
                 'courses.block',
                 'courses.year',
-                'courses.semester'
+                'courses.semester',
+                'courses.is_active'
             )
             ->where(function ($query) {
                 $query->where('courses.type', 'like', '%' . $this->search . '%')

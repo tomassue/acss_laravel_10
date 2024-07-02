@@ -70,7 +70,7 @@
                         <option selected="">Select Semester</option>
                         <option value="1">1st Semester</option>
                         <option value="2">2nd Semester</option>
-                        <option value="0">Intersession</option>
+                        <option value="3">Intersession</option>
                     </select>
                 </div>
                 <div class="col-md-6">
@@ -198,7 +198,7 @@
                         <option selected>Select Semester</option>
                         <option value="1">1st Semester</option>
                         <option value="2">2nd Semester</option>
-                        <option value="0">Intersession</option>
+                        <option value="3">Intersession</option>
                     </select>
                 </div>
                 <div class="col-md-6">

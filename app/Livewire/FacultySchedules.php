@@ -39,13 +39,51 @@ class FacultySchedules extends Component
             'course_id' => $this->selectedCourse
         ];
 
-        $query = AppointmentsModel::query();
-        $query->create($data);
-        $this->reset('selectedInstructor', 'selectedCourse');
-        $this->dispatch('hide-appointFacultyModal');
-        $this->dispatch('reset-virtual-selects'); // Emit event to reset Virtual Select dropdowns
-        $this->dispatch('success-toast-message');
-        // $this->redirect('faculty-schedules');
+        // Retrieve the selected course details
+        $selectedCourse = CourseModel::where('id', $this->selectedCourse)
+            ->select('day', 'time_start', 'time_end')
+            ->first();
+
+        if (!$selectedCourse) {
+            $this->dispatch('alert-something-went-wrong');
+        }
+
+        // Decode the days array
+        $selectedDays = $selectedCourse->day;
+
+        // Check for overlapping appointments
+        $overlappingAppointments = AppointmentsModel::join('courses', 'courses.id', '=', 'appointments.course_id')
+            ->where('appointments.status', '1')
+            ->where('appointments.user_id', $this->selectedInstructor)
+            ->where(function ($query) use ($selectedCourse, $selectedDays) {
+                $query->where(function ($query) use ($selectedCourse, $selectedDays) {
+                    foreach ($selectedDays as $day) {
+                        $query->orWhereJsonContains('courses.day', $day);
+                    }
+                })
+                    ->where(function ($query) use ($selectedCourse) {
+                        $query->whereBetween('courses.time_start', [$selectedCourse->time_start, $selectedCourse->time_end])
+                            ->orWhereBetween('courses.time_end', [$selectedCourse->time_start, $selectedCourse->time_end])
+                            ->orWhere(function ($query) use ($selectedCourse) {
+                                $query->where('courses.time_start', '<=', $selectedCourse->time_start)
+                                    ->where('courses.time_end', '>=', $selectedCourse->time_end);
+                            });
+                    });
+            })
+            ->exists();
+
+        if ($overlappingAppointments) {
+            $this->dispatch('alert-overlapping-schedule');
+        } else {
+            // Save the appointment
+            $query = AppointmentsModel::query();
+            $query->create($data);
+            $this->reset('selectedInstructor', 'selectedCourse');
+            $this->dispatch('hide-appointFacultyModal');
+            $this->dispatch('reset-virtual-selects'); // Emit event to reset Virtual Select dropdowns
+            $this->dispatch('success-toast-message');
+            // $this->redirect('faculty-schedules');
+        }
     }
 
     #[On('archive-appointment')]
@@ -118,6 +156,7 @@ class FacultySchedules extends Component
                 'courses.semester',
                 'rooms.name AS room_name'
             )
+            ->where('courses.is_active', '1')
             ->whereNotExists(function ($query) {
                 $query->select(DB::raw(1))
                     ->from('appointments')

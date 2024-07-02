@@ -21,7 +21,8 @@ class CourseModel extends Model
         'time_end',
         'block',
         'year',
-        'semester'
+        'semester',
+        'is_active'
     ];
 
     // Automatically save the 'day' in json_encode and decodes it when retrieved.

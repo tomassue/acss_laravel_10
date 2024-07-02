@@ -105,6 +105,7 @@
                                         @endphp
                                         <th scope="row">{{ $item->time_block }}</th>
                                         <td>
+                                            @if ($ins2)
                                             @if(in_array('Monday', $days) || in_array('Thursday', $days))
                                             {!!
                                             $item->course_subject . '<br>' .
@@ -112,8 +113,10 @@
                                             $item->room_name
                                             !!}
                                             @endif
+                                            @endif
                                         </td>
                                         <td>
+                                            @if ($ins2)
                                             @if(in_array('Tuesday', $days) || in_array('Friday', $days))
                                             {!!
                                             $item->course_subject . '<br>' .
@@ -121,14 +124,17 @@
                                             $item->room_name
                                             !!}
                                             @endif
+                                            @endif
                                         </td>
                                         <td>
+                                            @if ($ins2)
                                             @if(in_array('Wednesday', $days))
                                             {!!
                                             $item->course_subject . '<br>' .
                                             $ins2->ins_last_name . '<br>' .
                                             $item->room_name
                                             !!}
+                                            @endif
                                             @endif
                                         </td>
                                     </tr>
@@ -152,6 +158,8 @@
 @script
 <script>
     $wire.on('show-setScheduleStudentModal', () => {
+        document.querySelector('#student-select').reset();
+        document.querySelector('#subject-select').reset();
         $('#setScheduleStudentModal').modal('show');
     });
 

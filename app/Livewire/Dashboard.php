@@ -144,7 +144,9 @@ class Dashboard extends Component
                 'courses.created_at',
                 'rooms.name AS room_name'
             )
-            ->where('appointments.user_id', Auth::user()->id);
+            ->where('appointments.user_id', Auth::user()->id)
+            ->where('appointments.status', '1')
+            ->orderBy('courses.time_end', 'ASC');
 
         if (!empty($this->semester)) {
             $subjects->where('courses.semester', '=', $this->semester);
@@ -161,7 +163,7 @@ class Dashboard extends Component
             'students' => $this->loadStudents(),
             'instructors' => $this->loadInstructors(),
             // 'subjects' => $this->loadSubjectList(),
-            'subjects' =>  $results_subject,
+            'subjects' =>  $results_subject, // This is for the non-super admin display
             'select_year' => $this->loadYear()
         ];
 

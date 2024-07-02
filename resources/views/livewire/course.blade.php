@@ -9,7 +9,7 @@
                         <div class="card" style="background-color: #1f2937; border-radius: 1rem;">
                             <div class="card-body">
                                 <h5 class="card-title" style="color: #ffffff">{{ $editMode == false ? 'Add Course' : 'Edit Course' }} Form</h5>
-                                <form class="row g-3" data-bitwarden-watching="1" novalidate wire:submit="save">
+                                <form class="row g-3" data-bitwarden-watching="1" novalidate wire:submit="{{ $editMode == false ? 'save' : 'update' }}">
                                     <div class="col-12">
                                         <label for="selectCourse" class="form-label" style="color: #ffffff">Course List:</label>
                                         <select id="selectCourse" class="form-select @error('type') is-invalid @enderror" wire:model="type">
@@ -43,7 +43,7 @@
                                             <option selected="">Select</option>
                                             <option value="1">1st Semester</option>
                                             <option value="2">2nd Semester</option>
-                                            <option value="0">Intersession</option>
+                                            <option value="3">Intersession</option>
                                         </select>
                                         @error('type') <div class="invalid-feedback"> {{ $message }} </div> @enderror
                                     </div>
@@ -83,6 +83,17 @@
                                         <input type="text" class="form-control @error('block') is-invalid @enderror" id="inputBlock" wire:model="block">
                                         @error('block') <div class="invalid-feedback"> {{ $message }} </div> @enderror
                                     </div>
+                                    @if ($editMode == true)
+                                    <div class="col-12">
+                                        <label for="inputStatus" class="form-label" style="color: #ffffff">Status:</label>
+                                        <select class="form-select @error('is_active') is-invalid @enderror" aria-label=" Default select example" wire:model="is_active">
+                                            <option disabled>Select</option>
+                                            <option value="1">Active</option>
+                                            <option value="0">Inactive</option>
+                                        </select>
+                                        @error('is_active') <div class="invalid-feedback"> {{ $message }} </div> @enderror
+                                    </div>
+                                    @endif
                                     <div class="text-start" style="margin-top: 8px; padding-top: 15px; padding-bottom: 20px;">
                                         <button type="submit" class="btn btn-primary">{{ $editMode == false ? 'Save' : 'Update' }}</button>
                                         <button type="button" class="btn btn-secondary" wire:click="clear">Cancel</button>
@@ -127,6 +138,7 @@
                                                         </div>
                                                         <div class="p-1">Year: {{ $item->year }}</div>
                                                         <div class="p-1">Semester: {{ $item->semester }}</div>
+                                                        <div class="p-1">Status: <span class="badge {{ $item->is_active == 0 ? 'bg-secondary' : 'bg-success' }}">{{ $item->is_active == 0 ? 'Inactive' : 'Active' }}</span></div>
                                                     </div>
                                                     <div class="col-4">
                                                         <div class="row p-3 g-2">

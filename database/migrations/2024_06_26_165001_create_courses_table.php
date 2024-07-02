@@ -22,6 +22,7 @@ return new class extends Migration
             $table->string('block');
             $table->string('year');
             $table->string('semester');
+            $table->string('is_active')->default('1');
             $table->timestamps();
         });
     }
