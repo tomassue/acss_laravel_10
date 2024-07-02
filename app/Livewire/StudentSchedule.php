@@ -2,6 +2,8 @@
 
 namespace App\Livewire;
 
+use Rap2hpoutre\FastExcel\FastExcel;
+use OpenSpout\Common\Entity\Style\Style;
 use App\Models\AppointmentsModel;
 use App\Models\CourseModel;
 use App\Models\User;
@@ -28,6 +30,48 @@ class StudentSchedule extends Component
             'selectedStudent.required' => 'The student field is required.',
             'selectedSubject.required' => 'The subject field is required.'
         ];
+    }
+
+    #[On('exportExcel')]
+    public function exportExcel()
+    {
+        $schedules = AppointmentsModel::join('courses', 'courses.id', '=', 'appointments.course_id')
+            ->join('rooms', 'rooms.id', '=', 'courses.room_id')
+            ->join('users', 'users.id', '=', 'appointments.user_id')
+            ->select(
+                'courses.subject AS course_subject',
+                'courses.day AS courses_day',
+                DB::raw("CONCAT(DATE_FORMAT(courses.time_start, '%h:%i%p'), ' - ', DATE_FORMAT(courses.time_end, '%h:%i%p')) AS time_block"),
+                'rooms.name AS room_name',
+            )
+            ->where('appointments.user_id', $this->student)
+            ->where('status', '1')
+            ->orderBy('courses.time_end', 'ASC')
+            ->get();
+
+        $header_style = (new Style())->setFontBold();
+
+        $rows_style = (new Style())
+            ->setFontSize(8)
+            ->setShouldWrapText()
+            ->setBackgroundColor("EDEDED");
+
+        return (new FastExcel($schedules))->headerStyle($header_style)
+            ->rowsStyle($rows_style)
+            ->download('file.xlsx', function ($item) {
+                // Decode the JSON string
+                $days = json_decode($item->courses_day, true);
+
+                // If decoding failed, fallback to original string
+                $days = is_array($days) ? implode(', ', $days) : $item->courses_day;
+
+                return [
+                    'Subject' => $item->course_subject,
+                    'Day' => $days,
+                    'Time' => $item->time_block,
+                    'Room' => $item->room_name
+                ];
+            });
     }
 
     #[On('archive-all-appointments')]

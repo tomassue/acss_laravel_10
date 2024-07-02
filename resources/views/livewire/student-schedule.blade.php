@@ -81,7 +81,16 @@
 
                 <div class="card">
                     <div class="card-body">
-                        <h5 class="card-title">Time Blocks</h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h5 class="card-title">Time Block</h5>
+                            </div>
+                            @if ($student)
+                            <div class="col-md-6 d-flex justify-content-end align-items-center">
+                                <a class="btn btn-info" role="button" aria-disabled="true" wire:click="$dispatch('confirm-exportExcel-student')"><i class="bi bi-filetype-csv"></i></a>
+                            </div>
+                            @endif
+                        </div>
                         <div class="table-responsive">
                             <table class="table table-bordered text-center" style="vertical-align: middle;">
                                 <thead>
@@ -165,6 +174,23 @@
 
     $wire.on('hide-setScheduleStudentModal', () => {
         $('#setScheduleStudentModal').modal('hide');
+    });
+
+    $wire.on('confirm-exportExcel-student', () => {
+        console.log('sdfasd');
+        Swal.fire({
+            title: "Are you sure?",
+            text: "Exported data will be saved as .xlsx file.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, export it!"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $wire.dispatch('exportExcel');
+            }
+        });
     });
 
     VirtualSelect.init({
