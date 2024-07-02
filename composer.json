@@ -12,7 +12,6 @@
         "laravel/tinker": "^2.8",
         "laravel/ui": "^4.5",
         "livewire/livewire": "^3.5",
-        "maatwebsite/excel": "^3.1",
         "rap2hpoutre/fast-excel": "^5.5"
     },
     "require-dev": {
