@@ -57,6 +57,9 @@ class Course extends Component
 
         // Check if the room is already occupied during the specified time and days
         $occupied_rooms = CourseModel::where('room_id', $this->selectedRoom)
+            ->where('year', $this->year)
+            ->where('semester', $this->semester)
+            ->where('block', $this->block)
             ->where(function ($query) {
                 // Check if any day matches with selected days
                 foreach ($this->selectedDays as $day) {
@@ -80,13 +83,13 @@ class Course extends Component
             $this->addError('time_start', 'The selected room is already occupied during the specified and time.');
             $this->addError('time_end', 'The selected room is already occupied during the specified and time.');
             return;
+        } else {
+            $query = CourseModel::query();
+            $query->create($data);
+            $this->clear();
+            $this->dispatch('reset-virtual-selects'); // Emit event to reset Virtual Select dropdowns
+            $this->dispatch('success-toast-message');
         }
-
-        $query = CourseModel::query();
-        $query->create($data);
-        $this->clear();
-        $this->dispatch('reset-virtual-selects'); // Emit event to reset Virtual Select dropdowns
-        $this->dispatch('success-toast-message');
     }
 
     public function edit(CourseModel $key)
