@@ -153,7 +153,8 @@ class Dashboard extends Component
         }
 
         if (!empty($this->year)) {
-            $subjects->whereYear('courses.created_at', '=', $this->year);
+            // $subjects->whereYear('courses.created_at', '=', $this->year);
+            $subjects->where('courses.year', '=', $this->year);
         }
 
         $results_subject = $subjects->get();

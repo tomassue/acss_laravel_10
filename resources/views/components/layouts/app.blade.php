@@ -53,7 +53,9 @@
 </head>
 
 <body>
+    @if (!Route::is('guest'))
     <livewire:navigation />
+    @endif
 
     {{ $slot }}
 

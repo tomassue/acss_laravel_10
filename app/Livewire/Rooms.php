@@ -62,11 +62,20 @@ class Rooms extends Component
             'name' => $this->name,
             'is_active' => $this->is_active
         ];
-        $query = RoomsModel::query();
-        $query->findOrFail($this->key);
-        $query->update($data);
-        $this->clear();
-        $this->dispatch('success-toast-message');
+        // Check if room's name already exists except for the current record
+        $existing_room = RoomsModel::where('name', $this->name)
+            ->where('id', '<>', $this->key) // Exclude the current record
+            ->exists();
+
+        if ($existing_room) {
+            $this->dispatch('duplicate-room-name-error');
+            $this->clear();
+        } else {
+            $room = RoomsModel::findOrFail($this->key);
+            $room->update($data);
+            $this->clear();
+            $this->dispatch('success-toast-message');
+        }
     }
 
     public function loadRooms()

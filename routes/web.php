@@ -9,6 +9,7 @@ use App\Livewire\Rooms;
 use App\Livewire\StudentSchedule;
 use App\Livewire\Users;
 use App\Http\Middleware\SuperAdminAccess;
+use App\Livewire\Guest;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
@@ -33,9 +34,8 @@ Route::group(['middleware' => ['auth', 'superadmin']], function () {
     Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
     Route::get('/rooms', Rooms::class)->name('rooms');
     //// Route::get('/faculty', Faculty::class)->name('faculty');
-    Route::get('/courses', Course::class)->name('courses');
     Route::get('/faculty-schedules', FacultySchedules::class)->name('faculty-schedules');
-    Route::get('/student-schedules', StudentSchedule::class)->name('student-schedules');
+    //// Route::get('/student-schedules', StudentSchedule::class)->name('student-schedules');
     Route::get('/users', Users::class)->name('users');
     Route::get('/profile', MyProfile::class)->name('profile');
 });
@@ -43,3 +43,9 @@ Route::group(['middleware' => ['auth', 'superadmin']], function () {
 Route::group(['middleware' => 'auth'], function () {
     Route::get('/dashboard', Dashboard::class)->name('dashboard');
 });
+
+Route::group(['middleware' => 'chairperson'], function () {
+    Route::get('/courses', Course::class)->name('courses');
+});
+
+Route::get('/guest', Guest::class)->name('guest');

@@ -160,25 +160,21 @@
 
         <ul class="sidebar-nav" id="sidebar-nav">
 
+            @if (Auth::user()->role == 'Super Admin' || Auth::user()->role == 'Instructor')
             <li class="nav-item">
                 <a class="nav-link {{ request()->routeIs('dashboard') ? 'collapsed' : '' }}" href="{{ route('dashboard') }}">
                     <i class="ri-pie-chart-line"></i>
                     <span>Dashboard</span>
                 </a>
-            </li><!-- End Dashboard Nav -->
+            </li>
+            @endif
+            <!-- End Dashboard Nav -->
 
             @if(Auth::user()->role == 'Super Admin')
             <li class="nav-item">
                 <a class="nav-link {{ request()->routeIs('rooms') ? 'collapsed' : '' }}" href="{{ route('rooms') }}">
                     <i class="ri-home-8-line"></i>
                     <span>Rooms</span>
-                </a>
-            </li>
-
-            <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('courses') ? 'collapsed' : '' }}" href="{{ route('courses') }}">
-                    <i class="ri-file-copy-2-line"></i>
-                    <span>Courses</span>
                 </a>
             </li>
 
@@ -190,19 +186,22 @@
             </li>
 
             <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('student-schedules') ? 'collapsed' : '' }}" href="{{ route('student-schedules') }}">
-                    <i class="ri-user-line"></i>
-                    <span>Student Schedules</span>
-                </a>
-            </li>
-
-            <li class="nav-item">
                 <a class="nav-link {{ request()->routeIs('users') ? 'collapsed' : '' }}" href="{{ route('users') }}">
                     <i class="ri-user-star-line"></i>
                     <span>Users</span>
                 </a>
             </li>
-            @endif<!-- End Profile Page Nav -->
+            @endif
+
+            @if (Auth::user()->role == 'Chairperson')
+            <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('courses') ? 'collapsed' : '' }}" href="{{ route('courses') }}">
+                    <i class="ri-file-copy-2-line"></i>
+                    <span>Courses</span>
+                </a>
+            </li>
+            @endif
+            <!-- End Profile Page Nav -->
 
         </ul>
 

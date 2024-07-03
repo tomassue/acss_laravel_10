@@ -46,7 +46,7 @@
                                         <label for="selectRole" class="form-label" style="color: #ffffff">Role:</label>
                                         <select id="inputState" class="form-select @error('role') is-invalid @enderror" wire:model="role">
                                             <option selected="">Choose...</option>
-                                            <option value="Student">Student</option>
+                                            <option value="Chairperson">Chairperson</option>
                                             <option value="Instructor">Instructor</option>
                                         </select>
                                         @error('role') <div class="invalid-feedback">{{ $message }}</div> @enderror

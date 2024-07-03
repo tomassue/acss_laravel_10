@@ -69,5 +69,7 @@ class Kernel extends HttpKernel
     protected $routeMiddleware = [
         // Other middleware entries...
         'superadmin' => \App\Http\Middleware\SuperAdminAccess::class,
+        'chairperson' => \App\Http\Middleware\ChairpersonAccess::class,
+        'instructor' => \App\Http\Middleware\InstructorAccess::class
     ];
 }

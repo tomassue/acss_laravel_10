@@ -115,13 +115,15 @@
                                             </div>
                                         </div>
                                         <div class="col-12">
-                                            <button class="btn btn-primary w-100" type="submit">Login</button>
+                                            <button class="btn btn-primary w-100" type="submit" style="background-color: #1D3D76; border-color: #1D3D76;">Login</button>
                                         </div>
-                                        <!-- <div class="col-12">
-                                            <p class="small mb-0">Don't have account? <a href="pages-register.html">Create an account</a></p>
-                                        </div> -->
                                     </form>
-
+                                    <div class="col-12 py-2 text-center">
+                                        <span>&#8212;</span> or <span>&#8212;</span>
+                                    </div>
+                                    <div class="col-12">
+                                        <a href="{{ route('guest') }}" role="button" class="btn btn-success" style="background-color: #067E8E; border-color: #067E8E; width: -webkit-fill-available;">Log in as Guest</a>
+                                    </div>
                                 </div>
                             </div>
 

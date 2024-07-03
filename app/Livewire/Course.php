@@ -55,11 +55,34 @@ class Course extends Component
             'semester' => $this->semester
         ];
 
+        // // Check if the room is already occupied during the specified time and days
+        // $occupied_rooms = CourseModel::where('room_id', $this->selectedRoom)
+        //     ->where('year', $this->year)
+        //     ->where('semester', $this->semester)
+        //     ->where('block', $this->block)
+        //     ->where(function ($query) {
+        //         // Check if any day matches with selected days
+        //         foreach ($this->selectedDays as $day) {
+        //             $query->orWhereJsonContains('day', $day);
+        //         }
+        //     })
+        //     ->where(function ($query) {
+        //         $query->where(function ($query) {
+        //             $query->whereBetween('time_start', [$this->time_start, $this->time_end])
+        //                 ->orWhereBetween('time_end', [$this->time_start, $this->time_end]);
+        //         })
+        //             ->orWhere(function ($query) {
+        //                 $query->where('time_start', '<=', $this->time_start)
+        //                     ->where('time_end', '>=', $this->time_end);
+        //             });
+        //     })
+        //     ->exists();
+
         // Check if the room is already occupied during the specified time and days
         $occupied_rooms = CourseModel::where('room_id', $this->selectedRoom)
             ->where('year', $this->year)
             ->where('semester', $this->semester)
-            ->where('block', $this->block)
+            // ->where('block', $this->block)
             ->where(function ($query) {
                 // Check if any day matches with selected days
                 foreach ($this->selectedDays as $day) {
@@ -68,13 +91,14 @@ class Course extends Component
             })
             ->where(function ($query) {
                 $query->where(function ($query) {
+                    // Check for overlapping time intervals
                     $query->whereBetween('time_start', [$this->time_start, $this->time_end])
-                        ->orWhereBetween('time_end', [$this->time_start, $this->time_end]);
-                })
-                    ->orWhere(function ($query) {
-                        $query->where('time_start', '<=', $this->time_start)
-                            ->where('time_end', '>=', $this->time_end);
-                    });
+                        ->orWhereBetween('time_end', [$this->time_start, $this->time_end])
+                        ->orWhere(function ($query) {
+                            $query->where('time_start', '<=', $this->time_start)
+                                ->where('time_end', '>=', $this->time_end);
+                        });
+                });
             })
             ->exists();
 
