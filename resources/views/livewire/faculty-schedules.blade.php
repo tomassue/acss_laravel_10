@@ -1,10 +1,13 @@
 <main id="main" class="main">
 
     <div class="pagetitle">
-        <h1>Faculty Schedules</h1>
+        <h1>{{ $archive_mode ? 'Archived Faculty Schedules' : 'Faculty Schedules' }}</h1>
+        <span class="badge bg-secondary" role="button" wire:click="$set('archive_mode', {{ $archive_mode ? 'false' : 'true' }})"><i class="bi bi-clock-history"></i> View archived schedules</span>
     </div><!-- End Page Title -->
 
     <section class="section">
+
+        @if (!$archive_mode)
         <div class="row">
             <div class="col-lg-12 py-3">
                 <div class="d-grid gap-2 col-2 ms-auto">
@@ -148,6 +151,121 @@
 
             </div>
         </div>
+
+        @else($archive_mode)
+        <div class="col-lg-12 py-3">
+
+            <div class="d-grid gap-2 col-lg-6 mx-auto">
+                <div class="mb-3">
+                    <select class="form-select form-select-lg" aria-label="Default select example" wire:model.live="instructor">
+                        <option value="" selected>Select...</option>
+                        @foreach ($instructors as $item)
+                        <option value="{{ $item->instructor_id }}">{{ $item->instructor_name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="row gy-2">
+                    <div class="col-md-6">
+                        <select class="form-select" aria-label="Default select example" wire:model.live="semester">
+                            <option selected="">Select Semester</option>
+                            <option value="1">1st Semester</option>
+                            <option value="2">2nd Semester</option>
+                            <option value="3">Intersession</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <select class="form-select" aria-label="Default select example" wire:model.live="year">
+                            <option selected>Year</option>
+                            @foreach ($select_year as $item)
+                            <option value="{{ $item->year }}">{{ $item->year }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="col-lg-12">
+
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5 class="card-title">Time Block</h5>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-bordered text-center" style="vertical-align: middle;">
+                            <thead>
+                                <tr>
+                                    <th scope="col" width="30%">Time</th>
+                                    <th scope="col" width="23%">Mon Thur</th>
+                                    <th scope="col" width="23%">Tue Fri</th>
+                                    <th scope="col" width="23%">Wed</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse ($archived_appointments as $item)
+                                @php
+                                $days = json_decode($item->courses_day);
+                                @endphp
+                                <tr wire:key="{{ $item->appointments_id }}">
+                                    @php
+                                    $ins = App\Models\AppointmentsModel::where('course_id', $item->course_id)->pluck('user_id');
+                                    $ins2 = App\Models\User::select(DB::raw("SUBSTRING_INDEX(SUBSTRING_INDEX(users.name, ' ', 2), ' ', -1) AS ins_last_name"))
+                                    ->whereIn('id', $ins)->where('role', 'Instructor')->first();
+                                    @endphp
+                                    <th scope="row">{{ $item->time_block }}</th>
+                                    <td>
+                                        @if ($ins2)
+                                        @if(in_array('Monday', $days) || in_array('Thursday', $days))
+                                        {!!
+                                        $item->course_subject . '<br>' .
+                                        $ins2->ins_last_name . '<br>' .
+                                        $item->room_name
+                                        !!}
+                                        @endif
+                                        @endif
+                                    </td>
+                                    <td>
+                                        @if ($ins2)
+                                        @if(in_array('Tuesday', $days) || in_array('Friday', $days))
+                                        {!!
+                                        $item->course_subject . '<br>' .
+                                        $ins2->ins_last_name . '<br>' .
+                                        $item->room_name
+                                        !!}
+                                        @endif
+                                        @endif
+                                    </td>
+                                    <td>
+                                        @if ($ins2)
+                                        @if(in_array('Wednesday', $days))
+                                        {!!
+                                        $item->course_subject . '<br>' .
+                                        $ins2->ins_last_name . '<br>' .
+                                        $item->room_name
+                                        !!}
+                                        @endif
+                                        @endif
+                                    </td>
+                                </tr>
+                                @empty
+                                <tr>
+                                    <th colspan="4">No data</th>
+                                </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        @endif
+
     </section>
 
     @include('livewire.modals.faculty-schedules-modal')

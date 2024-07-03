@@ -13,6 +13,8 @@ use Livewire\Component;
 
 class FacultySchedules extends Component
 {
+    public $archive_mode = false; // This will change the view of the page. Showing all archived schedules of a selected student.
+    public $semester, $year;
     public $instructor; // wire:model (select instructor)
     public $selectedInstructor, $selectedCourse; // appointment modal
 
@@ -186,6 +188,41 @@ class FacultySchedules extends Component
         return $appointments;
     }
 
+    public function loadArchivedAppointments() // For archive mode
+    {
+        $archived_appointments = AppointmentsModel::join('courses', 'courses.id', '=', 'appointments.course_id')
+            ->join('rooms', 'rooms.id', '=', 'courses.room_id')
+            ->join('users', 'users.id', '=', 'appointments.user_id')
+            ->select(
+                'appointments.id AS appointments_id',
+                'courses.id AS course_id',
+                'courses.subject AS course_subject',
+                'rooms.name AS room_name',
+                'courses.day AS courses_day',
+                DB::raw("CONCAT(DATE_FORMAT(courses.time_start, '%h:%i%p'), ' - ', DATE_FORMAT(courses.time_end, '%h:%i%p')) AS time_block"),
+                DB::raw("SUBSTRING_INDEX(SUBSTRING_INDEX(users.name, ' ', 2), ' ', -1) AS users_last_name")
+            )
+            ->where('appointments.user_id', $this->instructor)
+            ->where('courses.semester', '=', $this->semester)
+            ->whereYear('courses.created_at', '=', $this->year)
+            ->where('status', '0')
+            ->orderBy('courses.time_end', 'ASC')
+            ->get(); // Make sure to get the result here
+
+        return $archived_appointments;
+    }
+
+    public function loadYear() // for the filters. This is based what year the appointment was processed.
+    {
+        $select_year = DB::table('appointments')
+            ->select(DB::raw('YEAR(created_at) as year'))
+            ->distinct()
+            ->orderBy('year', 'desc') // Optional: Order by year descending
+            ->get();
+
+        return $select_year;
+    }
+
     public function loadCourses()
     {
         $courses = CourseModel::join('rooms', 'rooms.id', '=', 'courses.room_id')
@@ -226,7 +263,7 @@ class FacultySchedules extends Component
                     'Time: ' . $item->time_block . '<br>' .
                     'Days: ' . $daysString . '<br>' .
                     'Year: ' . $year . $yearSuffix . '<br>' .
-                    'Semester: ' . $item->semester . ' semester';
+                    'Semester: ' . $item->semester;
 
                 return [
                     'label' => $item->subject,
@@ -277,7 +314,9 @@ class FacultySchedules extends Component
             'instructors' => $faculties['instructors'],
             'select_instructors' => $faculties['select_instructors'],
             'courses' => $this->loadCourses(),
-            'appointments' => $this->loadAppointments()
+            'appointments' => $this->loadAppointments(),
+            'select_year' => $this->loadYear(),
+            'archived_appointments' => $this->loadArchivedAppointments()
         ];
 
         return view('livewire.faculty-schedules', $data);

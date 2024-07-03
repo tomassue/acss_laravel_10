@@ -13,6 +13,8 @@ use Livewire\Component;
 
 class StudentSchedule extends Component
 {
+    public $archive_mode = false; // This will change the view of the page. Showing all archived schedules of a selected student.
+    public $semester, $year;
     public $student; // wire:model
     public $selectedStudent, $selectedSubject; // setScheduleStudentModal
 
@@ -194,6 +196,30 @@ class StudentSchedule extends Component
         return $schedules;
     }
 
+    public function loadArchivedSchedules() // For archive mode
+    {
+        $archived_schedules = AppointmentsModel::join('courses', 'courses.id', '=', 'appointments.course_id')
+            ->join('rooms', 'rooms.id', '=', 'courses.room_id')
+            ->join('users', 'users.id', '=', 'appointments.user_id')
+            ->select(
+                'appointments.id AS appointments_id',
+                'courses.id AS course_id',
+                'courses.subject AS course_subject',
+                'rooms.name AS room_name',
+                'courses.day AS courses_day',
+                DB::raw("CONCAT(DATE_FORMAT(courses.time_start, '%h:%i%p'), ' - ', DATE_FORMAT(courses.time_end, '%h:%i%p')) AS time_block"),
+                DB::raw("SUBSTRING_INDEX(SUBSTRING_INDEX(users.name, ' ', 2), ' ', -1) AS users_last_name")
+            )
+            ->where('appointments.user_id', $this->student)
+            ->where('courses.semester', '=', $this->semester)
+            ->whereYear('courses.created_at', '=', $this->year)
+            ->where('status', '0')
+            ->orderBy('courses.time_end', 'ASC')
+            ->get(); // Make sure to get the result here
+
+        return $archived_schedules;
+    }
+
     public function loadStudents()
     {
         $students = User::where('role', 'Student')
@@ -330,6 +356,17 @@ class StudentSchedule extends Component
         return $courses;
     }
 
+    public function loadYear() // for the filters. This is based what year the appointment was processed.
+    {
+        $select_year = DB::table('appointments')
+            ->select(DB::raw('YEAR(created_at) as year'))
+            ->distinct()
+            ->orderBy('year', 'desc') // Optional: Order by year descending
+            ->get();
+
+        return $select_year;
+    }
+
     public function clear()
     {
         $this->reset('selectedStudent', 'selectedSubject');
@@ -338,13 +375,34 @@ class StudentSchedule extends Component
 
     public function render()
     {
+        // $archived_schedules = AppointmentsModel::join('courses', 'courses.id', '=', 'appointments.course_id')
+        //     ->join('rooms', 'rooms.id', '=', 'courses.room_id')
+        //     ->join('users', 'users.id', '=', 'appointments.user_id')
+        //     ->select(
+        //         'appointments.id AS appointments_id',
+        //         'courses.id AS course_id',
+        //         'courses.subject AS course_subject',
+        //         'rooms.name AS room_name',
+        //         'courses.day AS courses_day',
+        //         DB::raw("CONCAT(DATE_FORMAT(courses.time_start, '%h:%i%p'), ' - ', DATE_FORMAT(courses.time_end, '%h:%i%p')) AS time_block"),
+        //         DB::raw("SUBSTRING_INDEX(SUBSTRING_INDEX(users.name, ' ', 2), ' ', -1) AS users_last_name")
+        //     )
+        //     ->where('appointments.user_id', $this->student)
+        //     ->where('courses.semester', '=', $this->semester)
+        //     ->whereYear('courses.created_at', '=', $this->year)
+        //     ->where('status', '0')
+        //     ->orderBy('courses.time_end', 'ASC')
+        //     ->get(); // Make sure to get the result here
+
         $students = $this->loadStudents();
 
         $data = [
             'students' => $students['students'],
             'select_students' => $students['select_students'],
             'subjects' => $this->loadCourses(),
-            'schedules' => $this->loadSchedules()
+            'schedules' => $this->loadSchedules(),
+            'select_year' => $this->loadYear(),
+            'archived_schedules' => $this->loadArchivedSchedules()
         ];
 
         return view('livewire.student-schedule', $data);
