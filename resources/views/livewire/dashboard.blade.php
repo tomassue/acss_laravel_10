@@ -3,6 +3,7 @@
 
         <section class="section">
             @if (Auth::user()->role == 'Super Admin')
+
             <div class="row gy-3">
                 <div class="col-lg-4">
                     <div>
@@ -20,25 +21,6 @@
                         </a>
                         @empty
                         @endforelse
-                    </div>
-                </div>
-
-                <div class="col-lg-4">
-                    <div>
-                        <div class="card border-bottom border-black border-4">
-                            <div class="card-body">
-                                <h5 class="card-title">Students</h5>
-                            </div>
-                        </div>
-
-                        <div class="list-group">
-                            @forelse($students as $item)
-                            <a href="#" class="list-group-item list-group-item-action pe-none" aria-current="true">
-                                {{ $item->name }}
-                            </a>
-                            @empty
-                            @endforelse
-                        </div>
                     </div>
                 </div>
 
@@ -193,15 +175,15 @@
             @elseif (Auth::user()->role == 'Instructor')
 
             <div class="row gy-3">
-                <div class="col-md-6">
+                <!-- <div class="col-md-6">
                     <select class="form-select" aria-label="Default select example" wire:model.live="semester">
                         <option selected>Select Semester</option>
                         <option value="1">1st Semester</option>
                         <option value="2">2nd Semester</option>
                         <option value="3">Intersession</option>
                     </select>
-                </div>
-                <div class="col-md-6">
+                </div> -->
+                <!-- <div class="col-md-6">
                     <select class="form-select" aria-label="Default select example" wire:model.live="year">
                         <option selected>Year</option>
                         <option value="1">1st Year</option>
@@ -209,12 +191,21 @@
                         <option value="3">3rd Year</option>
                         <option value="4">4th Year</option>
                     </select>
-                </div>
+                </div> -->
 
                 <div class="col-lg-12">
                     <div class="card">
                         <div class="card-body">
-                            <h5 class="card-title">Time Block</h5>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h5 class="card-title">Time Block</h5>
+                                </div>
+                                @if ($subjects)
+                                <div class="col-md-6 d-flex justify-content-end align-items-center">
+                                    <a class="btn btn-info" role="button" aria-disabled="true" wire:click="$dispatch('confirm-exportExcel')"><i class="bi bi-filetype-csv"></i></a>
+                                </div>
+                                @endif
+                            </div>
                             <div class="table-responsive">
                                 <table class="table table-bordered text-center" style="vertical-align: middle;">
                                     <thead>
@@ -314,8 +305,30 @@
                     </div>
                 </div>
             </div>
+
             @endif
         </section>
 
     </main><!-- End #main -->
 </div>
+
+@script
+<script>
+    $wire.on('confirm-exportExcel', () => {
+        console.log('sdfasd');
+        Swal.fire({
+            title: "Are you sure?",
+            text: "Exported data will be saved as .xlsx file.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, export it!"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $wire.dispatch('exportExcel');
+            }
+        });
+    });
+</script>
+@endscript

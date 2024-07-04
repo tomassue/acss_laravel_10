@@ -177,6 +177,7 @@ class FacultySchedules extends Component
                 'courses.subject AS course_subject',
                 'rooms.name AS room_name',
                 'courses.day AS courses_day',
+                'courses.block',
                 DB::raw("CONCAT(DATE_FORMAT(courses.time_start, '%h:%i%p'), ' - ', DATE_FORMAT(courses.time_end, '%h:%i%p')) AS time_block"),
                 DB::raw("SUBSTRING_INDEX(SUBSTRING_INDEX(users.name, ' ', 2), ' ', -1) AS users_last_name")
             )
@@ -199,6 +200,7 @@ class FacultySchedules extends Component
                 'courses.subject AS course_subject',
                 'rooms.name AS room_name',
                 'courses.day AS courses_day',
+                'courses.block',
                 DB::raw("CONCAT(DATE_FORMAT(courses.time_start, '%h:%i%p'), ' - ', DATE_FORMAT(courses.time_end, '%h:%i%p')) AS time_block"),
                 DB::raw("SUBSTRING_INDEX(SUBSTRING_INDEX(users.name, ' ', 2), ' ', -1) AS users_last_name")
             )

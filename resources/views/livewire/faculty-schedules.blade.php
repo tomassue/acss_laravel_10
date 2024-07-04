@@ -2,7 +2,7 @@
 
     <div class="pagetitle">
         <h1>{{ $archive_mode ? 'Archived Faculty Schedules' : 'Faculty Schedules' }}</h1>
-        <span class="badge bg-secondary" role="button" wire:click="$set('archive_mode', {{ $archive_mode ? 'false' : 'true' }})"><i class="bi bi-clock-history"></i> View archived schedules</span>
+        <!-- <span class="badge bg-secondary" role="button" wire:click="$set('archive_mode', {{ $archive_mode ? 'false' : 'true' }})"><i class="bi bi-clock-history"></i> View archived schedules</span> -->
     </div><!-- End Page Title -->
 
     <section class="section">
@@ -97,13 +97,17 @@
                             <table class="table table-bordered text-center" style="vertical-align: middle;">
                                 <thead>
                                     <tr>
-                                        <th scope="col" width="30%">Time</th>
-                                        <th scope="col" width="23%">Mon Thur</th>
-                                        <th scope="col" width="23%">Tue Fri</th>
-                                        <th scope="col" width="23%">Wed</th>
+                                        <th scope="col" width="12.5%">Time</th>
+                                        <th scope="col" width="12.5%">Sun</th>
+                                        <th scope="col" width="12.5%">Mon</th>
+                                        <th scope="col" width="12.5%">Tue</th>
+                                        <th scope="col" width="12.5%">Wed</th>
+                                        <th scope="col" width="12.5%">Thu</th>
+                                        <th scope="col" width="12.5%">Fri</th>
+                                        <th scope="col" width="12.5%">Sat</th>
                                     </tr>
                                 </thead>
-                                <tbody>
+                                <tbody style="font-size: xx-small;">
                                     @forelse ($appointments as $item)
                                     @php
                                     $days = json_decode($item->courses_day);
@@ -111,18 +115,27 @@
                                     <tr>
                                         <th scope="row">{{ $item->time_block }}</th>
                                         <td>
-                                            @if(in_array('Monday', $days) || in_array('Thursday', $days))
+                                            @if(in_array('Sunday', $days))
                                             {!!
-                                            $item->course_subject . '<br>' .
+                                            $item->course_subject . ' BLOCK ' . $item->block . '<br>' .
                                             $item->users_last_name . '<br>' .
                                             $item->room_name
                                             !!}
                                             @endif
                                         </td>
                                         <td>
-                                            @if(in_array('Tuesday', $days) || in_array('Friday', $days))
+                                            @if(in_array('Monday', $days))
                                             {!!
-                                            $item->course_subject . '<br>' .
+                                            $item->course_subject . ' BLOCK ' . $item->block . '<br>' .
+                                            $item->users_last_name . '<br>' .
+                                            $item->room_name
+                                            !!}
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @if(in_array('Tuesday', $days))
+                                            {!!
+                                            $item->course_subject . ' BLOCK ' . $item->block . '<br>' .
                                             $item->users_last_name . '<br>' .
                                             $item->room_name
                                             !!}
@@ -131,7 +144,34 @@
                                         <td>
                                             @if(in_array('Wednesday', $days))
                                             {!!
-                                            $item->course_subject . '<br>' .
+                                            $item->course_subject . ' BLOCK ' . $item->block . '<br>' .
+                                            $item->users_last_name . '<br>' .
+                                            $item->room_name
+                                            !!}
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @if(in_array('Thursday', $days))
+                                            {!!
+                                            $item->course_subject . ' BLOCK ' . $item->block . '<br>' .
+                                            $item->users_last_name . '<br>' .
+                                            $item->room_name
+                                            !!}
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @if(in_array('Friday', $days))
+                                            {!!
+                                            $item->course_subject . ' BLOCK ' . $item->block . '<br>' .
+                                            $item->users_last_name . '<br>' .
+                                            $item->room_name
+                                            !!}
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @if(in_array('Saturday', $days))
+                                            {!!
+                                            $item->course_subject . ' BLOCK ' . $item->block . '<br>' .
                                             $item->users_last_name . '<br>' .
                                             $item->room_name
                                             !!}
@@ -140,7 +180,7 @@
                                     </tr>
                                     @empty
                                     <tr>
-                                        <th colspan="4">No data</th>
+                                        <th colspan="8">No data</th>
                                     </tr>
                                     @endforelse
                                 </tbody>
@@ -199,10 +239,14 @@
                         <table class="table table-bordered text-center" style="vertical-align: middle;">
                             <thead>
                                 <tr>
-                                    <th scope="col" width="30%">Time</th>
-                                    <th scope="col" width="23%">Mon Thur</th>
-                                    <th scope="col" width="23%">Tue Fri</th>
-                                    <th scope="col" width="23%">Wed</th>
+                                    <th scope="col" width="12.5%">Time</th>
+                                    <th scope="col" width="12.5%">Sun</th>
+                                    <th scope="col" width="12.5%">Mon</th>
+                                    <th scope="col" width="12.5%">Tue</th>
+                                    <th scope="col" width="12.5%">Wed</th>
+                                    <th scope="col" width="12.5%">Thu</th>
+                                    <th scope="col" width="12.5%">Fri</th>
+                                    <th scope="col" width="12.5%">Sat</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -219,9 +263,9 @@
                                     <th scope="row">{{ $item->time_block }}</th>
                                     <td>
                                         @if ($ins2)
-                                        @if(in_array('Monday', $days) || in_array('Thursday', $days))
+                                        @if(in_array('Sunday', $days))
                                         {!!
-                                        $item->course_subject . '<br>' .
+                                        $item->course_subject . ' ' . 'Block ' . $item->block .'<br>' .
                                         $ins2->ins_last_name . '<br>' .
                                         $item->room_name
                                         !!}
@@ -230,9 +274,20 @@
                                     </td>
                                     <td>
                                         @if ($ins2)
-                                        @if(in_array('Tuesday', $days) || in_array('Friday', $days))
+                                        @if(in_array('Monday', $days))
                                         {!!
-                                        $item->course_subject . '<br>' .
+                                        $item->course_subject . ' ' . 'Block ' . $item->block .'<br>' .
+                                        $ins2->ins_last_name . '<br>' .
+                                        $item->room_name
+                                        !!}
+                                        @endif
+                                        @endif
+                                    </td>
+                                    <td>
+                                        @if ($ins2)
+                                        @if(in_array('Tuesday', $days))
+                                        {!!
+                                        $item->course_subject . ' ' . 'Block ' . $item->block .'<br>' .
                                         $ins2->ins_last_name . '<br>' .
                                         $item->room_name
                                         !!}
@@ -243,7 +298,40 @@
                                         @if ($ins2)
                                         @if(in_array('Wednesday', $days))
                                         {!!
-                                        $item->course_subject . '<br>' .
+                                        $item->course_subject . ' ' . 'Block ' . $item->block .'<br>' .
+                                        $ins2->ins_last_name . '<br>' .
+                                        $item->room_name
+                                        !!}
+                                        @endif
+                                        @endif
+                                    </td>
+                                    <td>
+                                        @if ($ins2)
+                                        @if(in_array('Thursday', $days))
+                                        {!!
+                                        $item->course_subject . ' ' . 'Block ' . $item->block .'<br>' .
+                                        $ins2->ins_last_name . '<br>' .
+                                        $item->room_name
+                                        !!}
+                                        @endif
+                                        @endif
+                                    </td>
+                                    <td>
+                                        @if ($ins2)
+                                        @if(in_array('Friday', $days))
+                                        {!!
+                                        $item->course_subject . ' ' . 'Block ' . $item->block .'<br>' .
+                                        $ins2->ins_last_name . '<br>' .
+                                        $item->room_name
+                                        !!}
+                                        @endif
+                                        @endif
+                                    </td>
+                                    <td>
+                                        @if ($ins2)
+                                        @if(in_array('Saturday', $days))
+                                        {!!
+                                        $item->course_subject . ' ' . 'Block ' . $item->block .'<br>' .
                                         $ins2->ins_last_name . '<br>' .
                                         $item->room_name
                                         !!}
@@ -253,7 +341,7 @@
                                 </tr>
                                 @empty
                                 <tr>
-                                    <th colspan="4">No data</th>
+                                    <th colspan="8">No data</th>
                                 </tr>
                                 @endforelse
                             </tbody>
